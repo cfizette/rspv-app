@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"rspv-app/models"
 	"rspv-app/views"
+
+	"github.com/gorilla/mux"
 
 	"github.com/gorilla/schema"
 )
@@ -12,16 +15,23 @@ import (
 type Events struct {
 	NewView     *views.View
 	CreatedView *views.View
+	EventView   *views.View
 	es          *models.EventService
 }
 
-// NewUsers is used to create a new Users controller
+type EventDetails struct {
+	Event  *models.Event
+	Guests []models.Guest
+}
+
+// NewEvents is used to create a new Events controller
 // This will panic if the templates are not parsed correctly
 // and should only be used during setup.
 func NewEvents(es *models.EventService) *Events {
 	return &Events{
 		NewView:     views.NewView("bootstrap", "events/new"),
 		CreatedView: views.NewView("bootstrap", "events/created"),
+		EventView:   views.NewView("bootstrap", "events/view"),
 		es:          es,
 	}
 }
@@ -29,6 +39,12 @@ func NewEvents(es *models.EventService) *Events {
 // EventCreationForm contains all the information required
 // to create a new Event
 type EventCreationForm struct {
+	Name string `schema:"name"`
+}
+
+// AddGuestForm contains the information of the guest to be
+// added as well as the event to be added to
+type AddGuestForm struct {
 	Name string `schema:"name"`
 }
 
@@ -56,7 +72,47 @@ func (e *Events) Create(w http.ResponseWriter, r *http.Request) {
 	if err := e.CreatedView.Render(w, event); err != nil {
 		panic(err)
 	}
+}
 
+// ViewEvent renders the view for an Event and its Guests
+func (e *Events) ViewEvent(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	displayID := vars["displayID"]
+	event, err := e.es.ByDisplayID(displayID)
+	if err != nil {
+		panic(err)
+	}
+	guests, err := e.es.GetGuests(event)
+	if err != nil {
+		panic(err)
+	}
+	eventDetails := EventDetails{
+		Event:  event,
+		Guests: guests,
+	}
+	if err := e.EventView.Render(w, eventDetails); err != nil {
+		panic(err)
+	}
+
+}
+
+func (e *Events) AddGuest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	displayID := vars["displayID"]
+	var form AddGuestForm
+	if err := parseForm(&form, r); err != nil {
+		panic(err)
+	}
+	event := models.Event{
+		DisplayID: &displayID,
+	}
+	guest := models.Guest{
+		Name: &form.Name,
+	}
+	fmt.Println(*event.DisplayID)
+	if err := e.es.AddGuest(&event, &guest); err != nil {
+		panic(err)
+	}
 }
 
 func parseForm(dst interface{}, r *http.Request) error {

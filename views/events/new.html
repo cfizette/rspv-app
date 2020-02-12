@@ -1,4 +1,22 @@
 {{define "yield"}}
+<div class="contianer">
+  <div class="row">
+    <div class="col-md-4"></div>
+      <div class="col-md-4">
+          <div class="card">
+              <h3 class="card-header">Create a new event!</h3>
+              <div class="card-body">
+                  {{template "createForm"}}
+              </div>
+          </div>
+      </div>
+      <div class="col-md-4"></div>
+  </div>
+</div>
+{{end}}
+
+
+{{define "createForm"}}
 <form action="/create" method="POST">
     <div class="form-group">
       <label for="name">Event Name</label>

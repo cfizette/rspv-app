@@ -33,7 +33,7 @@ func main() {
 	}
 	defer es.Close()
 	es.AutoMigrate()
-	es.DestructiveReset()
+	// es.DestructiveReset()
 
 	home := views.NewView("bootstrap", "static/home")
 	create := controllers.NewEvents(es)
@@ -43,6 +43,8 @@ func main() {
 	r.Handle("/", home).Methods("GET")
 	r.HandleFunc("/create", create.New).Methods("GET")
 	r.HandleFunc("/create", create.Create).Methods("POST")
+	r.HandleFunc("/{displayID}", create.ViewEvent).Methods("GET")
+	r.HandleFunc("/{displayID}", create.AddGuest).Methods("PATCH")
 
 	http.ListenAndServe(":3000", r)
 

@@ -1,4 +1,15 @@
 {{define "yield"}}
-<!--TODO: switch to using Modal to update user on successful event creation-->
-    <h1>Success! Use the followling link to access your event: http://guestly.com/{{.DisplayID}}</h1>
+<div class="contianer">
+  <div class="row">
+    <div class="col-md-4"></div>
+      <div class="col-md-auto">
+          <div class="card">
+              <div class="card-body">
+                  Success! Use the following link to access your event: http://evently.com/{{.DisplayID}}
+              </div>
+          </div>
+      </div>
+      <div class="col-md-4"></div>
+  </div>
+</div>
 {{end}}

@@ -13,7 +13,7 @@ var (
 type Event struct {
 	gorm.Model
 	Name      string
-	Attendees []Attendee
+	Guests    []Guest `gorm:"foreignkey:EventDisplayID;association_foreignkey:DisplayID"`
 	DisplayID *string `gorm:"not null;unique_index"`
 }
 
@@ -56,10 +56,10 @@ func (es *EventService) Delete(id uint) error {
 	return es.db.Delete(&e).Error
 }
 
-// ByID will return the event with the provided ID
-func (es *EventService) ByID(id uint) (*Event, error) {
+// ByDisplayID will return the event with the provided displayID
+func (es *EventService) ByDisplayID(id string) (*Event, error) {
 	var e Event
-	db := es.db.Where("id = ?", id)
+	db := es.db.Where("display_id = ?", id)
 	err := db.First(&e).Error
 	if err != nil {
 		return nil, err
@@ -67,11 +67,19 @@ func (es *EventService) ByID(id uint) (*Event, error) {
 	return &e, nil
 }
 
-// AddAttendee creates an association between the given Event and Attendee
-func (es *EventService) AddAttendee(e *Event, a *Attendee) error {
-	// Currently possible to add attendee to deleted event
-	err := es.db.Model(e).Association("Attendees").Append(*a).Error
+// AddGuest creates an association between the given Event and Attendee
+func (es *EventService) AddGuest(e *Event, g *Guest) error {
+	// Currently possible to add gest to deleted event
+	err := es.db.Model(e).Association("Guests").Append(*g).Error
 	return err
+}
+
+// GetGuests returns an array of all Guests associates with an Event.
+//TODO: look into using pointers to return Guests
+func (es *EventService) GetGuests(e *Event) ([]Guest, error) {
+	var guests []Guest
+	err := es.db.Where("event_display_id = ?", e.DisplayID).Find(&guests).Error
+	return guests, err
 }
 
 // DestructiveReset drops the events and attendees table and rebuilds it
@@ -80,7 +88,7 @@ func (es *EventService) DestructiveReset() error {
 	if err != nil {
 		return err
 	}
-	err = es.db.DropTableIfExists(&Attendee{}).Error
+	err = es.db.DropTableIfExists(&Guest{}).Error
 	if err != nil {
 		return err
 	}
@@ -93,7 +101,7 @@ func (es *EventService) AutoMigrate() error {
 	if err := es.db.AutoMigrate(&Event{}).Error; err != nil {
 		return err
 	}
-	if err := es.db.AutoMigrate(&Attendee{}).Error; err != nil {
+	if err := es.db.AutoMigrate(&Guest{}).Error; err != nil {
 		return err
 	}
 	return nil
