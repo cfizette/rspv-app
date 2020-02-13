@@ -9,6 +9,7 @@
                   {{template "addGuestForm" .}}
               </div>
           </div>
+          {{template "guests" .}}
       </div>
       <div class="col-md-4"></div>
   </div>
@@ -17,9 +18,9 @@
 
 
 
-
+<!--Use jQuery to post to correct url instead of formatting-->
 {{define "addGuestForm"}}
-<form method="PATCH">
+<form action="{{.Event.DisplayID}}/guest" method="POST">
     <div class="form-group">
         <div class="form-group row">
             <label for="eventName" class="col-sm-2 col-form-label">Event</label>
@@ -36,4 +37,13 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
+{{end}}
+
+
+{{define "guests"}}
+<ul class="list-group">
+    {{range .Guests}}
+        <li class="list-group-item">{{.Name}}</li>
+    {{end}}
+  </ul>
 {{end}}

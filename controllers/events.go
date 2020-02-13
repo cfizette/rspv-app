@@ -113,6 +113,9 @@ func (e *Events) AddGuest(w http.ResponseWriter, r *http.Request) {
 	if err := e.es.AddGuest(&event, &guest); err != nil {
 		panic(err)
 	}
+
+	// Redirect to original page
+
 }
 
 func parseForm(dst interface{}, r *http.Request) error {
@@ -120,6 +123,7 @@ func parseForm(dst interface{}, r *http.Request) error {
 		return err
 	}
 	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
 	if err := dec.Decode(dst, r.PostForm); err != nil {
 		return err
 	}

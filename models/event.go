@@ -69,8 +69,10 @@ func (es *EventService) ByDisplayID(id string) (*Event, error) {
 
 // AddGuest creates an association between the given Event and Attendee
 func (es *EventService) AddGuest(e *Event, g *Guest) error {
-	// Currently possible to add gest to deleted event
-	err := es.db.Model(e).Association("Guests").Append(*g).Error
+	// Currently possible to add gest to deleted event. Not sure if true rn
+	// err := es.db.Model(e).Association("Guests").Append(*g).Error
+	g.EventDisplayID = e.DisplayID
+	err := es.db.Create(g).Error
 	return err
 }
 

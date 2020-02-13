@@ -44,7 +44,7 @@ func main() {
 	r.HandleFunc("/create", create.New).Methods("GET")
 	r.HandleFunc("/create", create.Create).Methods("POST")
 	r.HandleFunc("/{displayID}", create.ViewEvent).Methods("GET")
-	r.HandleFunc("/{displayID}", create.AddGuest).Methods("PATCH")
+	r.HandleFunc("/{displayID}/guest", create.AddGuest).Methods("POST")
 
 	http.ListenAndServe(":3000", r)
 
